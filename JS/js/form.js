@@ -1,15 +1,12 @@
 function criarNovoPaciente() {
     var tabela = document.querySelector("#tabela-pacientes");
-    var form = document.querySelector("#form-add");  
-    
-    paciente = obterPacienteForm(form);
-    var erro = validarPaciente(paciente);
+    var form = document.querySelector("#form-add");
 
-    if (!(erro.length = 0)){
-        var mensagemErro = document.querySelector("#mensagem-erro");
-        mensagemErro.textContent = erro; 
-        
-        form.reset();
+    var paciente = obterPacienteForm(form);
+    var erros = validarPaciente(paciente);
+
+    if (erros.length > 0) {
+        exibeMensagensDeErro(erros);
         return;
     }
 
@@ -17,6 +14,18 @@ function criarNovoPaciente() {
     tabela.appendChild(pacienteTr);
 
     form.reset();
+    document.querySelector("#mensagens-erro").innerHTML = "";
+}
+
+function exibeMensagensDeErro(errosEncontrados){
+    var ul = document.querySelector("#mensagens-erro");
+    ul.innerHTML = "";
+    
+    errosEncontrados.forEach(erro => {
+        var li = document.createElement("li");
+        li.textContent = erro;
+        ul.appendChild(li);
+    });
 }
 
 function obterPacienteForm(fromulario) {
@@ -37,7 +46,7 @@ function montarTr(paciente) {
 
     newPacienteTr.appendChild(montarTd(paciente.nome, "info-nome"));
     newPacienteTr.appendChild(montarTd(paciente.peso, "info-peso"));
-    newPacienteTr.appendChild(montarTd(paciente.altura, "info-altura0"));
+    newPacienteTr.appendChild(montarTd(paciente.altura, "info-altura"));
     newPacienteTr.appendChild(montarTd(paciente.gordura, "info-gordura"));
     newPacienteTr.appendChild(montarTd(paciente.imc, "info-imc"));
 
@@ -54,10 +63,19 @@ function montarTd(text, className) {
 }
 
 function validarPaciente(paciente) {
+    var erros = [];
 
-    if (validarPeso(paciente.peso) && validarAltura(paciente.altura)) {
-        return "";
-    } else {
-        return "Paciente inválido.";
-    }
+    if(paciente.nome.length == 0)
+        erros.push("Nome inválido.")
+
+    if (!validarPeso(paciente.peso) || paciente.peso.length == 0) 
+        erros.push("Peso inválido.");
+
+    if (!validarAltura(paciente.altura))
+        erros.push("Altura inválida.");
+
+    if (paciente.gordura <= 0 || paciente.gordura.length == 0)
+        erros.push("Gordura inválida");
+
+    return erros;
 }
